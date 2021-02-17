@@ -4,7 +4,7 @@
       "name": "organization",
       "host": "http://localhost",
       "port": "3002",
-      "url": "http://localhost:3002/",
+      "url": "http://localhost:3002/organization",
       "verb": "get"
     }
   }

@@ -1,25 +1,22 @@
 import express, { Request, Response } from "express";
 import axios from 'axios';
-import { stringify } from "querystring";
-const { rabbitConnect } = require('./../rabbitmq');
 //local
 const registry: { [key: string]: any } = require("./registry.json");
 const routes = express.Router();
 
 
 // this is probably where you can put in entry to service registry. 
-routes.all("/apiName", (req: Request, res: Response) => {
-  console.log("this is req", req);
-  const microService = registry.services[req.params.apiName].name
+routes.all("/:apiName", (req: Request, res: Response) => {
   if (registry.services[req.params.apiName]) {
     const url = registry.services[req.params.apiName].url
+    console.log("i am the url", url)
     axios.get(url).then(
       (response) => {
         res.status(200).send(response.data)
       }
     )
   } else {
-    res.send("API Name does not exist")
+    res.send("API Name does not exist");
   }
 });
 
