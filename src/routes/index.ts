@@ -1,25 +1,48 @@
 import express, { Request, Response } from "express";
 import axios from 'axios';
+import { get } from "http";
+
 //local
 const registry: { [key: string]: any } = require("./registry.json");
 const routes = express.Router();
 
-
 // this is probably where you can put in entry to service registry. 
 routes.all("/:apiName", (req: Request, res: Response) => {
-  if (registry.services[req.params.apiName]) {
-    const url = registry.services[req.params.apiName].url
-    console.log("i am the url", url)
-    axios.get(url).then(
-      (response) => {
-        res.status(200).send(response.data)
-      }
-    )
-  } else {
+  if (!registry.services[req.params.apiName]) {
     res.send("API Name does not exist");
   }
+  const url = registry.services[req.params.apiName].url
+  const methodType: any = req.method
+  axios({
+    method: methodType,
+    url,
+    headers: req.headers,
+    data: req.body
+  }).then(response => res.send(response.data))
 });
 
+routes.all("/:apiName/:path", (req: Request, res: Response) => {
+  if (!registry.services[req.params.apiName]) {
+    res.send("API Name does not exist");
+  }
+  const url = registry.services[req.params.apiName].url + '/' + req.params.path
+  const methodType: any = req.method
+  axios({
+    method: methodType,
+    url,
+    headers: req.headers,
+    data: req.body
+  }).then(response => {
+    const url = `https://hooks.slack.com/services/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`
+    axios({
+      method: 'POST',
+      url,
+      headers: req.body,
+      data: response
+    })
+    // res.send(response.data)
+  })
+});
 export default routes
 
 //need an endpoint
