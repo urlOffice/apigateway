@@ -1,23 +1,24 @@
-import express, { Request, Response } from "express";
+import express, { Request, response, Response } from "express";
 import axios from 'axios';
+
+
 //local
 const registry: { [key: string]: any } = require("./registry.json");
 const routes = express.Router();
 
-
 // this is probably where you can put in entry to service registry. 
 routes.all("/:apiName", (req: Request, res: Response) => {
-  if (registry.services[req.params.apiName]) {
-    const url = registry.services[req.params.apiName].url
-    console.log("i am the url", url)
-    axios.get(url).then(
-      (response) => {
-        res.status(200).send(response.data)
-      }
-    )
-  } else {
+  if (!registry.services[req.params.apiName]) {
     res.send("API Name does not exist");
   }
+  const url = registry.services[req.params.apiName].url
+  const methodType: any = req.method
+  axios({
+    method: methodType,
+    url,
+    headers: req.headers,
+    data: req.body
+  }).then(response => res.send(response.data))
 });
 
 export default routes
